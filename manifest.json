@@ -1,0 +1,17 @@
+{
+  "name": "AudioContext Suspender",
+  "description": "Suspending AudioContext instances automatically",
+  "manifest_version": 2,
+  "version": "1.1",
+  "content_scripts": [{
+    "matches": ["<all_urls>"],
+    "js": ["content-script.js"],
+    "run_at": "document_start"
+  }],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "audiocontextsuspender@h43z"
+    }
+  },
+  "permissions": ["activeTab"]
+}
