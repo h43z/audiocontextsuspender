@@ -1,10 +1,26 @@
-const originalAudioContext = window.AudioContext
+const originalAudioContext = AudioContext
+const originalCreateBufferSource = AudioContext.prototype.createBufferSource
 
-exportFunction(function(){
-  const context = new originalAudioContext()
-  console.log("monkey patching audioContext", context)
-  setTimeout(_=>context.suspend(), 4000)
-  return context
-}, window, {
-  defineAs: "AudioContext"
-})
+let suspendTimer = null
+const autoSuspend = ctx => {
+  ctx.resume()
+
+  if(suspendTimer)
+    clearTimeout(suspendTimer)
+
+  suspendTimer = setTimeout(_ => {
+    ctx.suspend().then(_=>console.log('Auto suspended AudioContext', ctx))
+    suspendTimer = null
+  }, 2000)
+}
+
+AudioContext.prototype.createBufferSource = function(){
+  autoSuspend(this)
+  return originalCreateBufferSource.call(this)
+}
+
+AudioContext = function(){
+  const ctx = new originalAudioContext()
+  autoSuspend(ctx)
+  return ctx
+}
